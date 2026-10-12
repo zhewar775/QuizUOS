@@ -13,7 +13,6 @@
         .danger:hover { background: #dc2626; }
         .leaderboard { margin-top: 30px; background: #334155; padding: 15px; border-radius: 8px; text-align: right; }
     </style>
-    <!-- Firebase Compat SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
@@ -62,6 +61,7 @@
 
         function setQuestion(index) {
             db.ref('currentQuestion').set(index);
+            db.ref('submissions').remove(); // پاککردنەوەی وەڵامەکانی پێشوو بۆ پرسیاری نوێ
             document.getElementById('admin-status').innerText = "پرسیاری " + (index + 1) + " نیشان درا";
             document.getElementById('active-q-title').innerText = questionsList[index];
             document.getElementById('admin-status').style.color = "#10b981";
