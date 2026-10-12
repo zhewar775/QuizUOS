@@ -25,21 +25,21 @@
             justify-content: space-between;
         }
 
-        /* بەشی لۆگۆکانی سەرەوە */
+        /* بەشی لۆگۆ فەرمییەکانی سەرەوە */
         .header-logos {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 20px 40px;
-            background: rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(10px);
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .logo-box {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 15px;
         }
 
         .logo-box img {
@@ -47,13 +47,14 @@
             width: 55px;
             object-fit: contain;
             border-radius: 50%;
-            background: white;
-            padding: 3px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 4px;
             box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+            border: 2px solid #38bdf8;
         }
 
         .logo-text {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: bold;
             color: #e2e8f0;
             text-align: right;
@@ -221,15 +222,15 @@
 </head>
 <body>
 
-    <!-- سەرپەڕی لۆگۆکان -->
+    <!-- سەرپەڕی لۆگۆکان بە فایلی ناوخۆیی گیت هەب -->
     <div class="header-logos">
         <div class="logo-box">
-            <!-- لۆگۆی زانکۆی سلێمانی -->
-            <img src="sulaimani.png">
+            <!-- ناوی فایلی لۆگۆی زانکۆی سلێمانی لە گیت هەب -->
+            <img src="sulaimani.png" alt="University of Sulaimani">
             <div class="logo-text">زانکۆی سلێمانی <span>University of Sulaimani</span></div>
         </div>
         <div class="logo-box" style="flex-direction: row-reverse;">
-            <!-- لۆگۆی ئەی سی آی -->
+            <!-- ناوی فایلی لۆگۆی ACI لە گیت هەب -->
             <img src="aci.png" alt="ACI Student Chapter">
             <div class="logo-text" style="text-align: left;">UOS ACI Chapter <span>Student Chapter</span></div>
         </div>
