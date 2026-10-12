@@ -14,6 +14,7 @@
         .danger { background: #ef4444; }
         .danger:hover { background: #dc2626; }
         .leaderboard { margin-top: 25px; background: #334155; padding: 15px; border-radius: 8px; text-align: right; }
+        .admin-opt { padding: 8px; margin: 5px 0; background: #475569; border-radius: 5px; text-align: right; }
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
@@ -39,10 +40,8 @@
         </div>
 
         <div class="leaderboard">
-            <h3>وەڵامی زانکۆکان بە ڕاستەوخۆ (Real-time):</h3>
-            <ul id="live-submissions" style="list-style-type: none; padding: 0;">
-                <li>چاوەڕێی بەشداربووان...</li>
-            </ul>
+            <h3>چاودێری وەڵامەکانی زانکۆکان:</h3>
+            <div id="admin-options-view">هیچ پرسیارێک کارا نییە...</div>
         </div>
     </div>
 
@@ -72,19 +71,22 @@
             ["متر یان سانتی‌یمتر", "کیلۆگرام", "لیتەر", "وات"]
         ];
 
+        const correctAnswers = [1, 1, 0];
+
         function setQuestion(index) {
             db.ref('currentQuestion').set(index);
-            db.ref('showResults').set(false); // هەڵگەڕانەوەی دۆخی ئەنجام بۆ سەرەتایی
-            db.ref('submissions').remove();  // پاککردنەوەی وەڵامەکانی پێشوو
+            db.ref('showResults').set(false);
+            db.ref('submissions').remove();
             
-            document.getElementById('admin-status').innerText = "پرسیاری " + (index + 1) + " نیشان درا (کات دەستی پێکرد)";
+            document.getElementById('admin-status').innerText = "پرسیاری " + (index + 1) + " نیشان درا";
             document.getElementById('active-q-title').innerText = questionsList[index];
             document.getElementById('admin-status').style.color = "#10b981";
+            renderAdminView(index, {});
         }
 
         function revealResults() {
             db.ref('showResults').set(true);
-            document.getElementById('admin-status').innerText = "ئەنجامی پرسیار ڕاگەیەندرا!";
+            document.getElementById('admin-status').innerText = "ئەنجام ڕاگەیەندرا بۆ هۆڵەکە!";
             document.getElementById('admin-status').style.color = "#38bdf8";
         }
 
@@ -94,32 +96,44 @@
             db.ref('submissions').remove();
             document.getElementById('admin-status').innerText = "سیستەمەکە سفرکرایەوە!";
             document.getElementById('active-q-title').innerText = "هیچ پرسیارێک نیشان نەدراوە";
-            document.getElementById('live-submissions').innerHTML = "<li>چاوەڕێی بەشداربووان...</li>";
+            document.getElementById('admin-options-view').innerHTML = "هیچ پرسیارێک کارا نییە...";
             document.getElementById('admin-status').style.color = "#ef4444";
         }
 
         db.ref('submissions').on('value', (snapshot) => {
-            const data = snapshot.val();
-            let listContainer = document.getElementById('live-submissions');
-            listContainer.innerHTML = "";
-            
+            const data = snapshot.val() || {};
             db.ref('currentQuestion').once('value', (qSnap) => {
                 let qIdx = qSnap.val();
-                if(data) {
-                    for(let uni in data) {
-                        let sub = data[uni];
-                        let optText = (qIdx !== null && optionsList[qIdx]) ? optionsList[qIdx][sub.answerIndex] : "...";
-                        let li = document.createElement('li');
-                        li.style.padding = "6px 0";
-                        li.style.borderBottom = "1px solid #475569";
-                        li.innerHTML = `<strong>${uni}</strong>: ${optText} (${sub.isCorrect ? '🟢 ڕاست' : '🔴 هەڵە'})`;
-                        listContainer.appendChild(li);
-                    }
-                } else {
-                    listContainer.innerHTML = "<li>هێشتا هیچ زانکۆیەک وەڵامی نەدداوە...</li>";
+                if(qIdx !== null && qIdx !== undefined) {
+                    renderAdminView(qIdx, data);
                 }
             });
         });
+
+        function renderAdminView(qIdx, submissions) {
+            let opts = optionsList[qIdx];
+            let correctIdx = correctAnswers[qIdx];
+            let html = "";
+
+            opts.forEach((opt, idx) => {
+                let voters = [];
+                for(let key in submissions) {
+                    if(submissions[key].answerIndex === idx) {
+                        voters.push(submissions[key].uniName);
+                    }
+                }
+
+                let style = "background: #475569;";
+                if(idx === correctIdx) style = "background: #065f46; border: 1px solid #10b981;";
+
+                html += `<div class="admin-opt" style="${style}">
+                    <strong>${idx + 1}. ${opt}</strong> ${idx === correctIdx ? ' ⭐ (وەڵامی ڕاست)' : ''}<br>
+                    <span style="font-size: 13px; color: #cbd5e1;">بەشداربووان: ${voters.length > 0 ? voters.join(', ') : 'هیچ'}</span>
+                </div>`;
+            });
+
+            document.getElementById('admin-options-view').innerHTML = html;
+        }
     </script>
 </body>
 </html>
