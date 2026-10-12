@@ -13,55 +13,86 @@
         .danger:hover { background: #dc2626; }
         .leaderboard { margin-top: 30px; background: #334155; padding: 15px; border-radius: 8px; text-align: right; }
     </style>
+    <!-- Firebase Compat SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 <body>
 
     <div class="admin-panel">
         <h2>پانێڵی بەڕێوەبەری کویز (ئادمین)</h2>
-        <p>دۆخی ئێستا: <span id="admin-status" style="color: #f59e0b;">ئامادە بۆ پرسیاری یەکەم</span></p>
-        <h3 id="active-q-title" style="color: #38bdf8; margin: 15px 0;">پرسیار نەبژێردراوە</h3>
+        <p>دۆخی ئێستا: <span id="admin-status" style="color: #f59e0b;">ئامادە بۆ بەڕێوەبردن</span></p>
+        <h3 id="active-q-title" style="color: #38bdf8; margin: 15px 0;">هیچ پرسیارێک نیشان نەدراوە</h3>
         
         <hr style="border: 0; border-top: 1px solid #475569; margin: 20px 0;">
         
-        <!-- دوگمەکانی کۆنتڕۆڵ بۆ ٣ پرسیارەکە -->
-        <button onclick="nextQuestion(0)">نیشاندانی پرسیاری ١</button>
-        <button onclick="nextQuestion(1)">نیشاندانی پرسیاری ٢</button>
-        <button onclick="nextQuestion(2)">نیشاندانی پرسیاری ٣</button>
+        <button onclick="setQuestion(0)">نیشاندانی پرسیاری ١</button>
+        <button onclick="setQuestion(1)">نیشاندانی پرسیاری ٢</button>
+        <button onclick="setQuestion(2)">نیشاندانی پرسیاری ٣</button>
         <br>
-        <button class="danger" onclick="stopQuiz()">وەستاندنی وەڵامدانەوە</button>
-        <button onclick="showAnswers()" style="background: #8b5cf6;">نیشاندانی وەڵامی ڕاست</button>
+        <button class="danger" onclick="stopQuiz()">سفرکردنەوەی پرسیارەکان</button>
 
         <div class="leaderboard">
-            <h3>خشتەی خاڵەکان (Leaderboard)</h3>
-            <ul id="score-table" style="list-style-type: none; padding: 0;">
-                <li>زانکۆی سلێمانی: 0 خاڵ</li>
-                <li>زانکۆی گەرمیان: 0 خاڵ</li>
+            <h3>وەڵامی زانکۆکان بە ڕاستەوخۆ (Real-time):</h3>
+            <ul id="live-submissions" style="list-style-type: none; padding: 0;">
+                <li>چاوەڕێی بەشداربووان...</li>
             </ul>
         </div>
     </div>
 
     <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBX7jCnarT2n8fQCLUTvFbmd0xP6C_hbRU",
+            authDomain: "quizuos.firebaseapp.com",
+            databaseURL: "https://quizuos-default-rtdb.firebaseio.com",
+            projectId: "quizuos",
+            storageBucket: "quizuos.appspot.com",
+            messagingSenderId: "301015950450",
+            appId: "1:301015950450:web:952648f2018e1cd9bfceeb",
+            measurementId: "G-JW5HZZ82J4"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         const questionsList = [
             "پرسیاری ١: بەهێزترین پێکهاتە لە کۆنکرێتدا بۆ بەرنگاربوونەوەی هێزی کێشان (Tension) کامەیە؟",
             "پرسیاری ٢: کام لەم ئامرازانە بۆ دیاریکردنی ئاستی ڕووی زەوی و بەرزی و نزمایی لە مەیداندا بەکاردێت؟",
             "پرسیاری ٣: لە نەخشەی ئەندازیاریدا (AutoCAD)، هێماکان بە چ یەکەیەک بە شێوەیەکی باو دەپێورێن؟"
         ];
 
-        function nextQuestion(index) {
-            document.getElementById('admin-status').innerText = "پرسیاری " + (index + 1) + " نیشان درا بۆ بەشداربووان";
-            document.getElementById('active-q-title.innerText`').innerHTML = questionsList[index];
+        function setQuestion(index) {
+            db.ref('currentQuestion').set(index);
+            document.getElementById('admin-status').innerText = "پرسیاری " + (index + 1) + " نیشان درا";
+            document.getElementById('active-q-title').innerText = questionsList[index];
             document.getElementById('admin-status').style.color = "#10b981";
         }
 
         function stopQuiz() {
-            document.getElementById('admin-status').innerText = "وەڵامدانەوە بۆ ئەم پرسیارە وەستا!";
+            db.ref('currentQuestion').remove();
+            db.ref('submissions').remove();
+            document.getElementById('admin-status').innerText = "سیستەمەکە سفرکرایەوە!";
+            document.getElementById('active-q-title').innerText = "هیچ پرسیارێک نیشان نەدراوە";
+            document.getElementById('live-submissions').innerHTML = "<li>چاوەڕێی بەشداربووان...</li>";
             document.getElementById('admin-status').style.color = "#ef4444";
         }
 
-        function showAnswers() {
-            document.getElementById('admin-status').innerText = "وەڵامی ڕاست نیشان درا!";
-            document.getElementById('admin-status').style.color = "#3b82f6";
-        }
+        db.ref('submissions').on('value', (snapshot) => {
+            const data = snapshot.val();
+            let listContainer = document.getElementById('live-submissions');
+            listContainer.innerHTML = "";
+            
+            if(data) {
+                for(let uni in data) {
+                    let sub = data[uni];
+                    let li = document.createElement('li');
+                    li.style.padding = "5px 0";
+                    li.innerHTML = `<strong>${uni}</strong>: وەڵامەکەی نارد (دۆخ: ${sub.isCorrect ? '🟢 ڕاست' : '🔴 هەڵە'})`;
+                    listContainer.appendChild(li);
+                }
+            } else {
+                listContainer.innerHTML = "<li>هێشتا هیچ زانکۆیەک وەڵامی نەدداوە...</li>";
+            }
+        });
     </script>
 </body>
 </html>
