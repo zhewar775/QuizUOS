@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>کویزی زانکۆکان - بەشداربوو</title>
+    <style>
+        body { font-family: Tahoma, sans-serif; background: #0f172a; color: #fff; text-align: center; padding: 20px; }
+        .card { background: #1e293b; padding: 25px; border-radius: 12px; max-width: 450px; margin: 40px auto; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        input, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 6px; border: none; font-size: 16px; box-sizing: border-box; }
+        input { background: #334155; color: #fff; }
+        button { background: #3b82f6; color: white; cursor: pointer; font-weight: bold; }
+        button:hover { background: #2563eb; }
+        .option-btn { display: block; width: 100%; padding: 12px; margin: 10px 0; background: #334155; color: white; border: none; border-radius: 6px; cursor: pointer; text-align: right; font-size: 16px; }
+        .option-btn:hover { background: #475569; }
+        .option-btn.selected { background: #10b981 !important; }
+    </style>
+</head>
+<body>
+
+    <!-- بەشی چوونەژوورەوە بە پاسۆرد -->
+    <div id="login-section" class="card">
+        <h2>چوونەژوورەوە بۆ کویز</h2>
+        <input type="text" id="uni-name" placeholder="ناوی زانکۆکەت (بنموونە: زانکۆی سلێمانی)">
+        <input type="password" id="room-password" placeholder="پاسۆردی ژوور (workshop2026)">
+        <button onclick="joinQuiz()">بەشداریکردن</button>
+    </div>
+
+    <!-- بەشی پرسیارەکان -->
+    <div id="quiz-section" class="card" style="display: none;">
+        <h3 id="question-title">چاوەڕێکن تا ئادمین پرسیار دەستپێدەکات...</h3>
+        <div id="options-container"></div>
+        <p id="status-msg" style="font-size: 18px; color: #f59e0b; margin-top: 15px; font-weight: bold;"></p>
+    </div>
+
+    <script>
+        // ٣ پرسیاری ئەندازیاری شارستانی
+        const questions = [
+            {
+                title: "پرسیاری ١: بەهێزترین پێکهاتە لە کۆنکرێتدا بۆ بەرنگاربوونەوەی هێزی کێشان (Tension) کامەیە؟",
+                options: ["سیمکۆنکرێت", "ئاسنی بنیادنان (Rebar)", "خەڵووز", "قوڕ"],
+                answer: 1
+            },
+            {
+                title: "پرسیاری ٢: کام لەم ئامرازانە بۆ دیاریکردنی ئاستی ڕووی زەوی و بەرزی و نزمایی لە مەیداندا بەکاردێت؟",
+                options: ["تۆتاڵ ستەیشن", "لیڤڵ (Level)", "کۆمپاس", "تەپڵە"],
+                answer: 1
+            },
+            {
+                title: "پرسیاری ٣: لە نەخشەی ئەندازیاریدا (AutoCAD)، هێماکان بە چ یەکەیەک بە شێوەیەکی باو دەپێورێن؟",
+                options: ["متر یان سانتی‌یمتر", "کیلۆگرام", "لیتەر", "وات"],
+                answer: 0
+            }
+        ];
+
+        function joinQuiz() {
+            const uni = document.getElementById('uni-name').value;
+            const pass = document.getElementById('room-password').value;
+            
+            if(pass === "12345" && uni.trim() !== "") {
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('quiz-section').style.display = 'block';
+                loadQuestionForUser(0); // نموونەی نیشاندانی پرسیاری یەکەم بۆ تێست
+            } else {
+                alert("پاسۆرد یان ناوی زانکۆ هەڵەیە! پاسۆرد: workshop2026");
+            }
+        }
+
+        function loadQuestionForUser(qIndex) {
+            const q = questions[qIndex];
+            document.getElementById('question-title').innerText = q.title;
+            let container = document.getElementById('options-container');
+            container.innerHTML = "";
+            
+            q.options.forEach((opt, idx) => {
+                let btn = document.createElement('button');
+                btn.className = "option-btn";
+                btn.innerText = opt;
+                btn.onclick = function() {
+                    let allBtns = container.querySelectorAll('.option-btn');
+                    allBtns.forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    document.getElementById('status-msg').innerText = "وەڵامەکەت تۆمارکرا!";
+                };
+                container.appendChild(btn);
+            });
+        }
+    </script>
+</body>
+</html>

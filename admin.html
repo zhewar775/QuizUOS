@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پانێڵی کۆنتڕۆڵی ئادمین</title>
+    <style>
+        body { font-family: Tahoma, sans-serif; background: #0f172a; color: #fff; padding: 20px; text-align: center; }
+        .admin-panel { background: #1e293b; padding: 30px; border-radius: 12px; max-width: 600px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        button { padding: 12px 25px; margin: 10px; border-radius: 6px; border: none; font-size: 16px; cursor: pointer; font-weight: bold; background: #10b981; color: white; }
+        button:hover { background: #059669; }
+        .danger { background: #ef4444; }
+        .danger:hover { background: #dc2626; }
+        .leaderboard { margin-top: 30px; background: #334155; padding: 15px; border-radius: 8px; text-align: right; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-panel">
+        <h2>پانێڵی بەڕێوەبەری کویز (ئادمین)</h2>
+        <p>دۆخی ئێستا: <span id="admin-status" style="color: #f59e0b;">ئامادە بۆ پرسیاری یەکەم</span></p>
+        <h3 id="active-q-title" style="color: #38bdf8; margin: 15px 0;">پرسیار نەبژێردراوە</h3>
+        
+        <hr style="border: 0; border-top: 1px solid #475569; margin: 20px 0;">
+        
+        <!-- دوگمەکانی کۆنتڕۆڵ بۆ ٣ پرسیارەکە -->
+        <button onclick="nextQuestion(0)">نیشاندانی پرسیاری ١</button>
+        <button onclick="nextQuestion(1)">نیشاندانی پرسیاری ٢</button>
+        <button onclick="nextQuestion(2)">نیشاندانی پرسیاری ٣</button>
+        <br>
+        <button class="danger" onclick="stopQuiz()">وەستاندنی وەڵامدانەوە</button>
+        <button onclick="showAnswers()" style="background: #8b5cf6;">نیشاندانی وەڵامی ڕاست</button>
+
+        <div class="leaderboard">
+            <h3>خشتەی خاڵەکان (Leaderboard)</h3>
+            <ul id="score-table" style="list-style-type: none; padding: 0;">
+                <li>زانکۆی سلێمانی: 0 خاڵ</li>
+                <li>زانکۆی گەرمیان: 0 خاڵ</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const questionsList = [
+            "پرسیاری ١: بەهێزترین پێکهاتە لە کۆنکرێتدا بۆ بەرنگاربوونەوەی هێزی کێشان (Tension) کامەیە؟",
+            "پرسیاری ٢: کام لەم ئامرازانە بۆ دیاریکردنی ئاستی ڕووی زەوی و بەرزی و نزمایی لە مەیداندا بەکاردێت؟",
+            "پرسیاری ٣: لە نەخشەی ئەندازیاریدا (AutoCAD)، هێماکان بە چ یەکەیەک بە شێوەیەکی باو دەپێورێن؟"
+        ];
+
+        function nextQuestion(index) {
+            document.getElementById('admin-status').innerText = "پرسیاری " + (index + 1) + " نیشان درا بۆ بەشداربووان";
+            document.getElementById('active-q-title.innerText`').innerHTML = questionsList[index];
+            document.getElementById('admin-status').style.color = "#10b981";
+        }
+
+        function stopQuiz() {
+            document.getElementById('admin-status').innerText = "وەڵامدانەوە بۆ ئەم پرسیارە وەستا!";
+            document.getElementById('admin-status').style.color = "#ef4444";
+        }
+
+        function showAnswers() {
+            document.getElementById('admin-status').innerText = "وەڵامی ڕاست نیشان درا!";
+            document.getElementById('admin-status').style.color = "#3b82f6";
+        }
+    </script>
+</body>
+</html>
