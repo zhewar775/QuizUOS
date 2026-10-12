@@ -3,18 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پانێڵی کۆنتڕۆڵی ئادمین</title>
+    <title>پانێڵی بەڕێوەبەری وۆرکشۆپ (ئادمین)</title>
+    <!-- بانگکردنی فۆنتی ڕووداو (Rudaw) -->
     <style>
-        body { font-family: Tahoma, sans-serif; background: #0f172a; color: #fff; padding: 20px; text-align: center; }
-        .admin-panel { background: #1e293b; padding: 30px; border-radius: 12px; max-width: 650px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        button { padding: 12px 20px; margin: 8px; border-radius: 6px; border: none; font-size: 15px; cursor: pointer; font-weight: bold; background: #3b82f6; color: white; }
-        button:hover { background: #2563eb; }
-        .btn-green { background: #10b981; }
-        .btn-green:hover { background: #059669; }
-        .danger { background: #ef4444; }
-        .danger:hover { background: #dc2626; }
-        .leaderboard { margin-top: 25px; background: #334155; padding: 15px; border-radius: 8px; text-align: right; }
-        .admin-opt { padding: 8px; margin: 5px 0; background: #475569; border-radius: 5px; text-align: right; }
+        @font-face {
+            font-family: 'Rudaw';
+            src: url('https://raw.githubusercontent.com/Fons-Kurdi/Rudaw/main/RudawRegular.ttf') format('truetype');
+        }
+
+        body {
+            font-family: 'Rudaw', Tahoma, sans-serif;
+            background: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.95)), 
+                        url('https://images.unsplash.com/photo-1541888946425-d0fbb18f154d?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .admin-panel {
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(16px);
+            padding: 30px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 700px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h2 {
+            color: #38bdf8;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        button {
+            padding: 12px 20px;
+            margin: 6px;
+            border-radius: 8px;
+            border: none;
+            font-size: 15px;
+            font-family: 'Rudaw', Tahoma, sans-serif;
+            cursor: pointer;
+            font-weight: bold;
+            background: #0284c7;
+            color: white;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #0369a1;
+            transform: translateY(-2px);
+        }
+
+        .btn-green { background: #059669; }
+        .btn-green:hover { background: #047857; }
+        .danger { background: #dc2626; }
+        .danger:hover { background: #b91c1c; }
+
+        .leaderboard {
+            margin-top: 25px;
+            background: rgba(15, 23, 42, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: right;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .admin-opt {
+            padding: 12px;
+            margin: 8px 0;
+            background: rgba(71, 85, 105, 0.6);
+            border-radius: 8px;
+            text-align: right;
+            font-size: 15px;
+        }
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
@@ -22,26 +90,26 @@
 <body>
 
     <div class="admin-panel">
-        <h2>پانێڵی بەڕێوەبەری کویز (ئادمین)</h2>
-        <p>دۆخی ئێستا: <span id="admin-status" style="color: #f59e0b;">ئامادە بۆ بەڕێوەبردن</span></p>
-        <h3 id="active-q-title" style="color: #38bdf8; margin: 15px 0;">هیچ پرسیارێک نیشان نەدراوە</h3>
+        <h2>پانێڵی بەڕێوەبەری کویز</h2>
+        <p style="text-align: center; color: #94a3b8; font-size: 14px;">دۆخی ئێستا: <span id="admin-status" style="color: #fbbf24; font-weight: bold;">ئامادە بۆ بەڕێوەبردن</span></p>
+        <h3 id="active-q-title" style="color: #38bdf8; margin: 20px 0; text-align: center; font-size: 18px;">هیچ پرسیارێک نیشان نەدراوە</h3>
         
         <hr style="border: 0; border-top: 1px solid #475569; margin: 20px 0;">
         
-        <div>
-            <button onclick="setQuestion(0)">پرسیاری ١</button>
-            <button onclick="setQuestion(1)">پرسیاری ٢</button>
-            <button onclick="setQuestion(2)">پرسیاری ٣</button>
+        <div style="text-align: center;">
+            <button onclick="setQuestion(0)">نیشاندانی پرسیاری ١</button>
+            <button onclick="setQuestion(1)">نیشاندانی پرسیاری ٢</button>
+            <button onclick="setQuestion(2)">نیشاندانی پرسیاری ٣</button>
         </div>
         
-        <div style="margin-top: 10px;">
-            <button class="btn-green" onclick="revealResults()">📢 ڕاگەیاندنی ئەنجام و نیشاندانی وەڵامەکان</button>
+        <div style="margin-top: 15px; text-align: center;">
+            <button class="btn-green" onclick="revealResults()">📢 ڕاگەیاندنی ئەنجام بۆ هۆڵەکە</button>
             <button class="danger" onclick="stopQuiz()">سفرکردنەوەی سیستەم</button>
         </div>
 
         <div class="leaderboard">
-            <h3>چاودێری وەڵامەکانی زانکۆکان:</h3>
-            <div id="admin-options-view">هیچ پرسیارێک کارا نییە...</div>
+            <h4 style="margin-top: 0; color: #38bdf8;">چاودێری ڕاستەوخۆی وەڵامی زانکۆکان:</h4>
+            <div id="admin-options-view" style="color: #e2e8f0;">هیچ پرسیارێک کارا نییە...</div>
         </div>
     </div>
 
@@ -80,7 +148,7 @@
             
             document.getElementById('admin-status').innerText = "پرسیاری " + (index + 1) + " نیشان درا";
             document.getElementById('active-q-title').innerText = questionsList[index];
-            document.getElementById('admin-status').style.color = "#10b981";
+            document.getElementById('admin-status').style.color = "#059669";
             renderAdminView(index, {});
         }
 
@@ -97,7 +165,7 @@
             document.getElementById('admin-status').innerText = "سیستەمەکە سفرکرایەوە!";
             document.getElementById('active-q-title').innerText = "هیچ پرسیارێک نیشان نەدراوە";
             document.getElementById('admin-options-view').innerHTML = "هیچ پرسیارێک کارا نییە...";
-            document.getElementById('admin-status').style.color = "#ef4444";
+            document.getElementById('admin-status').style.color = "#dc2626";
         }
 
         db.ref('submissions').on('value', (snapshot) => {
@@ -123,12 +191,12 @@
                     }
                 }
 
-                let style = "background: #475569;";
-                if(idx === correctIdx) style = "background: #065f46; border: 1px solid #10b981;";
+                let style = "background: rgba(71, 85, 105, 0.6);";
+                if(idx === correctIdx) style = "background: rgba(5, 150, 105, 0.4); border: 1px solid #10b981;";
 
                 html += `<div class="admin-opt" style="${style}">
                     <strong>${idx + 1}. ${opt}</strong> ${idx === correctIdx ? ' ⭐ (وەڵامی ڕاست)' : ''}<br>
-                    <span style="font-size: 13px; color: #cbd5e1;">بەشداربووان: ${voters.length > 0 ? voters.join(', ') : 'هیچ'}</span>
+                    <span style="font-size: 13px; color: #38bdf8;">بەشداربووان: ${voters.length > 0 ? voters.join(', ') : 'هیچ'}</span>
                 </div>`;
             });
 
