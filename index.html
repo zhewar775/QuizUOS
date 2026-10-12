@@ -11,11 +11,14 @@
         input { background: #334155; color: #fff; }
         button { background: #3b82f6; color: white; cursor: pointer; font-weight: bold; }
         button:hover { background: #2563eb; }
-        .option-btn { display: block; width: 100%; padding: 12px; margin: 10px 0; background: #334155; color: white; border: none; border-radius: 6px; cursor: pointer; text-align: right; font-size: 16px; }
+        .option-btn { display: block; width: 100%; padding: 12px; margin: 10px 0; background: #334155; color: white; border: none; border-radius: 6px; cursor: pointer; text-align: right; font-size: 16px; transition: 0.2s; }
         .option-btn:hover { background: #475569; }
-        .option-btn.selected { background: #10b981 !important; }
-        .option-btn:disabled { background: #1e293b; color: #64748b; cursor: not-allowed; border: 1px solid #334155; }
+        .option-btn.selected { background: #3b82f6 !important; border: 2px solid #fff; }
+        .option-btn.correct { background: #10b981 !important; } /* سەوز بۆ وەڵامی ڕاست */
+        .option-btn.wrong { background: #ef4444 !important; }   /* سوور بۆ وەڵامی هەڵە */
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.8; }
         #timer { font-size: 20px; color: #ef4444; font-weight: bold; margin-bottom: 15px; }
+        .result-box { margin-top: 15px; padding: 10px; background: #334155; border-radius: 6px; text-align: right; font-size: 14px; }
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
@@ -34,6 +37,7 @@
         <h3 id="question-title">چاوەڕێکن تا ئادمین پرسیار دەستپێدەکات...</h3>
         <div id="options-container"></div>
         <p id="status-msg" style="font-size: 18px; color: #f59e0b; margin-top: 15px; font-weight: bold;"></p>
+        <div id="results-summary" class="results-box" style="display: none;"></div>
     </div>
 
     <script>
@@ -70,7 +74,7 @@
 
         let currentUniName = "";
         let timerInterval = null;
-        let hasAnswered = false;
+        let isTimeUp = false;
         let lastLoadedQuestion = null;
 
         function joinQuiz() {
@@ -90,21 +94,26 @@
         function listenToAdminActions() {
             db.ref('currentQuestion').on('value', (snapshot) => {
                 const qIndex = snapshot.val();
-                
-                // ئەگەر ئادمین هیچ پرسیارێکی نیشان نەداوە یان سفر کردبووەوە
                 if(qIndex === null || qIndex === undefined || questions[qIndex] === undefined) {
                     document.getElementById('question-title').innerText = "چاوەڕێکن تا ئادمین پرسیار دەستپێدەکات...";
                     document.getElementById('options-container').innerHTML = "";
                     document.getElementById('status-msg').innerText = "";
                     document.getElementById('timer').innerText = "کات: --";
+                    document.getElementById('results-summary').style.display = 'none';
                     if(timerInterval) clearInterval(timerInterval);
                     lastLoadedQuestion = null;
                 } else {
-                    // تەنها کاتێک پرسیارەکە دەگۆڕێت یان بۆ یەکەمجار دەردەکەوێت کە ئادمین دەنێت
                     if (lastLoadedQuestion !== qIndex) {
                         lastLoadedQuestion = qIndex;
                         loadQuestionForUser(qIndex);
                     }
+                }
+            });
+
+            // گوێگرتن بۆ کاتێک ئادمین ئەنجام ڕادەگەیەنێت
+            db.ref('showResults').on('value', (snapshot) => {
+                if(snapshot.val() === true && lastLoadedQuestion !== null) {
+                    showFinalResultsForUser(lastLoadedQuestion);
                 }
             });
         }
@@ -115,29 +124,27 @@
             let container = document.getElementById('options-container');
             container.innerHTML = "";
             document.getElementById('status-msg').innerText = "";
-            hasAnswered = false;
+            document.getElementById('results-summary').style.display = 'none';
+            isTimeUp = false;
             
             q.options.forEach((opt, idx) => {
                 let btn = document.createElement('button');
                 btn.className = "option-btn";
                 btn.innerText = opt;
                 btn.onclick = function() {
-                    if(hasAnswered) return;
-                    hasAnswered = true;
+                    if(isTimeUp) return; // ئەگەر کات تەواو بووبێت نەتوانێت بگۆڕێت
                     
                     let allBtns = container.querySelectorAll('.option-btn');
-                    allBtns.forEach(b => {
-                        b.classList.remove('selected');
-                        b.disabled = true;
-                    });
+                    allBtns.forEach(b => b.classList.remove('selected'));
                     btn.classList.add('selected');
                     
+                    // ناردن و نوێکردنەوەی وەڵام لە ماوەی کاتەکەدا
                     db.ref('submissions/' + currentUniName.replace(/[.#$\/\[\]]/g, '_')).set({
                         answerIndex: idx,
                         isCorrect: (idx === q.answer)
                     });
                     
-                    document.getElementById('status-msg').innerText = "وەڵامەکەت تۆمارکرا و قفڵ بوو!";
+                    document.getElementById('status-msg').innerText = "وەڵامەکەت هەڵبژێردرا (دەتوانیت تا کۆتایی کات بگۆڕیت)";
                 };
                 container.appendChild(btn);
             });
@@ -152,14 +159,50 @@
                 document.getElementById('timer').innerText = "کاتی ماوە: " + timeLeft + " چرکە";
                 if(timeLeft <= 0) {
                     clearInterval(timerInterval);
-                    document.getElementById('timer').innerText = "کاتەکە تەواو بوو!";
+                    isTimeUp = true;
+                    document.getElementById('timer').innerText = "کاتەکە تەواو بوو! وەڵامەکان قفڵ بون.";
                     let allBtns = container.querySelectorAll('.option-btn');
                     allBtns.forEach(b => b.disabled = true);
-                    if(!hasAnswered) {
-                        document.getElementById('status-msg').innerText = "کات تەواو بوو، ناتوانیت وەڵام بدەیتەوە!";
-                    }
+                    document.getElementById('status-msg').innerText = "چاوەڕێی ڕاگەیاندنی ئەنجام لەلایەن ئادمینەوە...";
                 }
             }, 1000);
+        }
+
+        function showFinalResultsForUser(qIndex) {
+            if(timerInterval) clearInterval(timerInterval);
+            isTimeUp = true;
+            const q = questions[qIndex];
+            let container = document.getElementById('options-container');
+            let allBtns = container.querySelectorAll('.option-btn');
+            
+            // قفڵکردنی دوگمەکان و نیشاندانی ڕەنگی ڕاست و هەڵە لەسەر بژاردەکان
+            allBtns.forEach((b, idx) => {
+                b.disabled = true;
+                if(idx === q.answer) {
+                    b.classList.add('correct'); // سەوز بۆ وەڵامی ڕاست
+                }
+            });
+
+            db.ref('submissions').once('value', (snapshot) => {
+                let data = snapshot.val();
+                let summaryDiv = document.getElementById('results-summary');
+                summaryDiv.style.display = 'block';
+                let html = "<h4>ئەنجامی بەشداربووان:</h4><ul style='padding-right: 20px; margin: 0;'>";
+                
+                if(data) {
+                    for(let uni in data) {
+                        let sub = data[uni];
+                        let userOptText = q.options[sub.answerIndex];
+                        let statusIcon = sub.isCorrect ? "🟢" : "🔴";
+                        html += `<li>${statusIcon} <strong>${uni}</strong>: ${userOptText}</li>`;
+                    }
+                } else {
+                    html += "<li>هیچ زانکۆیەک وەڵامی نەدابوو.</li>";
+                }
+                html += "</ul>";
+                summaryDiv.innerHTML = html;
+                document.getElementById('status-msg').innerText = "ئەنجامی پرسیار ڕاگەیەندرا!";
+            });
         }
     </script>
 </body>

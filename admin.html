@@ -6,12 +6,14 @@
     <title>پانێڵی کۆنتڕۆڵی ئادمین</title>
     <style>
         body { font-family: Tahoma, sans-serif; background: #0f172a; color: #fff; padding: 20px; text-align: center; }
-        .admin-panel { background: #1e293b; padding: 30px; border-radius: 12px; max-width: 600px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        button { padding: 12px 25px; margin: 10px; border-radius: 6px; border: none; font-size: 16px; cursor: pointer; font-weight: bold; background: #10b981; color: white; }
-        button:hover { background: #059669; }
+        .admin-panel { background: #1e293b; padding: 30px; border-radius: 12px; max-width: 650px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        button { padding: 12px 20px; margin: 8px; border-radius: 6px; border: none; font-size: 15px; cursor: pointer; font-weight: bold; background: #3b82f6; color: white; }
+        button:hover { background: #2563eb; }
+        .btn-green { background: #10b981; }
+        .btn-green:hover { background: #059669; }
         .danger { background: #ef4444; }
         .danger:hover { background: #dc2626; }
-        .leaderboard { margin-top: 30px; background: #334155; padding: 15px; border-radius: 8px; text-align: right; }
+        .leaderboard { margin-top: 25px; background: #334155; padding: 15px; border-radius: 8px; text-align: right; }
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
@@ -25,11 +27,16 @@
         
         <hr style="border: 0; border-top: 1px solid #475569; margin: 20px 0;">
         
-        <button onclick="setQuestion(0)">نیشاندانی پرسیاری ١</button>
-        <button onclick="setQuestion(1)">نیشاندانی پرسیاری ٢</button>
-        <button onclick="setQuestion(2)">نیشاندانی پرسیاری ٣</button>
-        <br>
-        <button class="danger" onclick="stopQuiz()">سفرکردنەوەی سیستەم</button>
+        <div>
+            <button onclick="setQuestion(0)">پرسیاری ١</button>
+            <button onclick="setQuestion(1)">پرسیاری ٢</button>
+            <button onclick="setQuestion(2)">پرسیاری ٣</button>
+        </div>
+        
+        <div style="margin-top: 10px;">
+            <button class="btn-green" onclick="revealResults()">📢 ڕاگەیاندنی ئەنجام و نیشاندانی وەڵامەکان</button>
+            <button class="danger" onclick="stopQuiz()">سفرکردنەوەی سیستەم</button>
+        </div>
 
         <div class="leaderboard">
             <h3>وەڵامی زانکۆکان بە ڕاستەوخۆ (Real-time):</h3>
@@ -59,16 +66,31 @@
             "پرسیاری ٣: لە نەخشەی ئەندازیاریدا (AutoCAD)، هێماکان بە چ یەکەیەک بە شێوەیەکی باو دەپێورێن؟"
         ];
 
+        const optionsList = [
+            ["سیمکۆنکرێت", "ئاسنی بنیادنان (Rebar)", "خەڵووز", "قوڕ"],
+            ["تۆتاڵ ستەیشن", "لیڤڵ (Level)", "کۆمپاس", "تەپڵە"],
+            ["متر یان سانتی‌یمتر", "کیلۆگرام", "لیتەر", "وات"]
+        ];
+
         function setQuestion(index) {
             db.ref('currentQuestion').set(index);
-            db.ref('submissions').remove(); // پاککردنەوەی وەڵامەکانی پێشوو بۆ پرسیاری نوێ
-            document.getElementById('admin-status').innerText = "پرسیاری " + (index + 1) + " نیشان درا";
+            db.ref('showResults').set(false); // هەڵگەڕانەوەی دۆخی ئەنجام بۆ سەرەتایی
+            db.ref('submissions').remove();  // پاککردنەوەی وەڵامەکانی پێشوو
+            
+            document.getElementById('admin-status').innerText = "پرسیاری " + (index + 1) + " نیشان درا (کات دەستی پێکرد)";
             document.getElementById('active-q-title').innerText = questionsList[index];
             document.getElementById('admin-status').style.color = "#10b981";
         }
 
+        function revealResults() {
+            db.ref('showResults').set(true);
+            document.getElementById('admin-status').innerText = "ئەنجامی پرسیار ڕاگەیەندرا!";
+            document.getElementById('admin-status').style.color = "#38bdf8";
+        }
+
         function stopQuiz() {
             db.ref('currentQuestion').remove();
+            db.ref('showResults').remove();
             db.ref('submissions').remove();
             document.getElementById('admin-status').innerText = "سیستەمەکە سفرکرایەوە!";
             document.getElementById('active-q-title').innerText = "هیچ پرسیارێک نیشان نەدراوە";
@@ -81,17 +103,22 @@
             let listContainer = document.getElementById('live-submissions');
             listContainer.innerHTML = "";
             
-            if(data) {
-                for(let uni in data) {
-                    let sub = data[uni];
-                    let li = document.createElement('li');
-                    li.style.padding = "5px 0";
-                    li.innerHTML = `<strong>${uni}</strong>: وەڵامەکەی نارد (دۆخ: ${sub.isCorrect ? '🟢 ڕاست' : '🔴 هەڵە'})`;
-                    listContainer.appendChild(li);
+            db.ref('currentQuestion').once('value', (qSnap) => {
+                let qIdx = qSnap.val();
+                if(data) {
+                    for(let uni in data) {
+                        let sub = data[uni];
+                        let optText = (qIdx !== null && optionsList[qIdx]) ? optionsList[qIdx][sub.answerIndex] : "...";
+                        let li = document.createElement('li');
+                        li.style.padding = "6px 0";
+                        li.style.borderBottom = "1px solid #475569";
+                        li.innerHTML = `<strong>${uni}</strong>: ${optText} (${sub.isCorrect ? '🟢 ڕاست' : '🔴 هەڵە'})`;
+                        listContainer.appendChild(li);
+                    }
+                } else {
+                    listContainer.innerHTML = "<li>هێشتا هیچ زانکۆیەک وەڵامی نەدداوە...</li>";
                 }
-            } else {
-                listContainer.innerHTML = "<li>هێشتا هیچ زانکۆیەک وەڵامی نەدداوە...</li>";
-            }
+            });
         });
     </script>
 </body>
