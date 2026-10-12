@@ -3,41 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>کویزی زانکۆکان - بەشداربوو</title>
+    <title>وۆرکشۆپی زانستی - کویزێ ئەندازیاری</title>
+    <!-- بانگکردنی فۆنتی ڕووداو (Rudaw) -->
     <style>
-        body { font-family: Tahoma, sans-serif; background: #0f172a; color: #fff; text-align: center; padding: 20px; }
-        .card { background: #1e293b; padding: 25px; border-radius: 12px; max-width: 480px; margin: 30px auto; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        input, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 6px; border: none; font-size: 16px; box-sizing: border-box; }
-        input { background: #334155; color: #fff; }
-        button { background: #3b82f6; color: white; cursor: pointer; font-weight: bold; }
-        button:hover { background: #2563eb; }
-        .option-container-box { position: relative; margin: 10px 0; }
-        .option-btn { display: block; width: 100%; padding: 12px; background: #334155; color: white; border: none; border-radius: 6px; cursor: pointer; text-align: right; font-size: 16px; transition: 0.2s; }
-        .option-btn:hover { background: #475569; }
-        .option-btn.selected { background: #3b82f6 !important; border: 2px solid #fff; }
-        .option-btn.correct { background: #10b981 !important; color: white; } 
-        .option-btn.wrong { background: #ef4444 !important; color: white; }   
-        .voter-tag { font-size: 12px; color: #38bdf8; margin-top: 4px; text-align: right; padding-right: 5px; font-weight: bold; }
-        #timer { font-size: 20px; color: #ef4444; font-weight: bold; margin-bottom: 15px; }
+        @font-face {
+            font-family: 'Rudaw';
+            src: url('https://raw.githubusercontent.com/Fons-Kurdi/Rudaw/main/RudawRegular.ttf') format('truetype');
+        }
+        
+        body {
+            font-family: 'Rudaw', Tahoma, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.9)), 
+                        url('https://images.unsplash.com/photo-1541888946425-d0fbb18f154d?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* بەشی لۆگۆکانی سەرەوە */
+        .header-logos {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-box img {
+            height: 55px;
+            width: 55px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: white;
+            padding: 3px;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+        }
+
+        .logo-text {
+            font-size: 15px;
+            font-weight: bold;
+            color: #e2e8f0;
+            text-align: right;
+        }
+
+        .logo-text span {
+            display: block;
+            font-size: 12px;
+            color: #38bdf8;
+            font-weight: normal;
+        }
+
+        /* ناوەڕۆکی سەرەکی */
+        .main-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(16px);
+            padding: 35px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        h2 {
+            color: #38bdf8;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-top: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(15, 23, 42, 0.7);
+            color: #fff;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Rudaw', Tahoma, sans-serif;
+            box-sizing: border-box;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
+
+        .toggle-password {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 18px;
+            width: auto;
+            padding: 0;
+            margin: 0;
+        }
+
+        button.submit-btn {
+            width: 100%;
+            padding: 14px;
+            margin-top: 20px;
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-family: 'Rudaw', Tahoma, sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
+            transition: 0.3s;
+        }
+
+        button.submit-btn:hover {
+            background: linear-gradient(135deg, #0369a1, #075985);
+            transform: translateY(-2px);
+        }
+
+        .option-container-box {
+            position: relative;
+            margin: 12px 0;
+        }
+
+        .option-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: rgba(51, 65, 85, 0.8);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: right;
+            font-size: 16px;
+            font-family: 'Rudaw', Tahoma, sans-serif;
+            transition: 0.2s;
+        }
+
+        .option-btn:hover {
+            background: rgba(71, 85, 105, 0.9);
+            border-color: #38bdf8;
+        }
+
+        .option-btn.selected {
+            background: #0284c7 !important;
+            border: 2px solid #fff;
+            box-shadow: 0 0 15px rgba(2, 132, 199, 0.5);
+        }
+
+        .option-btn.correct { background: #059669 !important; border-color: #34d399; } 
+        .option-btn.wrong { background: #dc2626 !important; border-color: #f87171; }   
+
+        .voter-tag {
+            font-size: 13px;
+            color: #38bdf8;
+            margin-top: 6px;
+            text-align: right;
+            padding-right: 5px;
+            font-weight: bold;
+        }
+
+        #timer {
+            font-size: 22px;
+            color: #f87171;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px dashed rgba(239, 68, 68, 0.3);
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            background: rgba(15, 23, 42, 0.7);
+            font-size: 13px;
+            color: #94a3b8;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 <body>
 
-    <div id="login-section" class="card">
-        <h2>چوونەژوورەوە بۆ کویز</h2>
-        <input type="text" id="uni-name" placeholder="ناوی زانکۆکەت (بنموونە: زانکۆی سلێمانی)">
-        <input type="password" id="room-password" placeholder="پاسۆردی ژوور (workshop2026)">
-        <button onclick="joinQuiz()">بەشداریکردن</button>
+    <!-- سەرپەڕی لۆگۆکان -->
+    <div class="header-logos">
+        <div class="logo-box">
+            <!-- لۆگۆی زانکۆی سلێمانی -->
+            <img src="https://upload.wikimedia.org/wikipedia/en/2/29/University_of_Sulaimani_logo.png" alt="University of Sulaimani">
+            <div class="logo-text">زانکۆی سلێمانی <span>University of Sulaimani</span></div>
+        </div>
+        <div class="logo-box" style="flex-direction: row-reverse;">
+            <!-- لۆگۆی ئەی سی آی -->
+            <img src="https://images.credly.com/images/004a441e-6243-41bb-9855-4a60ea2f9cbb/large.png" alt="ACI Student Chapter">
+            <div class="logo-text" style="text-align: left;">UOS ACI Chapter <span>Student Chapter</span></div>
+        </div>
     </div>
 
-    <div id="quiz-section" class="card" style="display: none;">
-        <div id="timer">کات: --</div>
-        <h3 id="question-title">چاوەڕێکن تا ئادمین پرسیار دەستپێدەکات...</h3>
-        <div id="options-container"></div>
-        <p id="status-msg" style="font-size: 16px; color: #f59e0b; margin-top: 15px; font-weight: bold;"></p>
+    <!-- ناوەڕۆکی کارتەکان -->
+    <div class="main-container">
+        <div id="login-section" class="card">
+            <h2>بەشداریکردن لە وۆرکشۆپ</h2>
+            <p style="color: #cbd5e1; font-size: 14px; margin-bottom: 20px;">تکایە ناوی زانکۆ و پاسۆردی ژووری وۆرکشۆپ بنووسە</p>
+            <div class="input-group">
+                <input type="text" id="uni-name" placeholder="ناوی زانکۆکەت (بنموونە: زانکۆی سلێمانی)">
+            </div>
+            <div class="input-group">
+                <input type="password" id="room-password" placeholder="پاسۆردی ژوور (workshop2026)">
+                <button type="button" class="toggle-password" onclick="togglePassword()">👁️</button>
+            </div>
+            <button class="submit-btn" onclick="joinQuiz()">چوونە ژوورەوە</button>
+        </div>
+
+        <div id="quiz-section" class="card" style="display: none;">
+            <div id="timer">کات: --</div>
+            <h3 id="question-title" style="color: #f1f5f9; font-size: 19px; line-height: 1.5; margin-bottom: 20px;">چاوەڕێکن تا ئادمین پرسیار دەستپێدەکات...</h3>
+            <div id="options-container"></div>
+            <p id="status-msg" style="font-size: 15px; color: #fbbf24; margin-top: 15px; font-weight: bold;"></p>
+        </div>
     </div>
+
+    <footer>
+        کۆنفرانسی زانستی وۆرکشۆپی ئەندازیاری - هەموو مافەکان پارێزراون © 2026
+    </footer>
 
     <script>
         const firebaseConfig = {
@@ -77,6 +300,15 @@
         let activeQIndex = null;
         let selectedOptionIndex = null;
 
+        function togglePassword() {
+            const passInput = document.getElementById('room-password');
+            if (passInput.type === "password") {
+                passInput.type = "text";
+            } else {
+                passInput.type = "password";
+            }
+        }
+
         function joinQuiz() {
             const uni = document.getElementById('uni-name').value;
             const pass = document.getElementById('room-password').value;
@@ -92,7 +324,6 @@
         }
 
         function listenToAdminActions() {
-            // گوێگرتن لە گۆڕانی پرسیار
             db.ref('currentQuestion').on('value', (snapshot) => {
                 const qIndex = snapshot.val();
                 if(qIndex === null || qIndex === undefined || questions[qIndex] === undefined) {
@@ -111,7 +342,6 @@
                 }
             });
 
-            // گوێگرتن بۆ کاتێک ئادمین ئەنجام ڕادەگەیەنێت
             db.ref('showResults').on('value', (snapshot) => {
                 if(snapshot.val() === true && activeQIndex !== null) {
                     showFinalResults();
@@ -137,21 +367,20 @@
                 btn.innerText = opt;
                 
                 btn.onclick = function() {
-                    if(isTimeUp) return; // ئەگەر کات تەواو بووبێت ناگۆڕدرێت
+                    if(isTimeUp) return;
                     
                     let allBtns = container.querySelectorAll('.option-btn');
                     allBtns.forEach(b => b.classList.remove('selected'));
                     btn.classList.add('selected');
                     selectedOptionIndex = idx;
                     
-                    // نوێکردنەوەی وەڵام لە فایەربەیس لە ماوەی کاتەکەدا
                     db.ref('submissions/' + currentUniName.replace(/[.#$\/\[\]]/g, '_')).set({
                         uniName: currentUniName,
                         answerIndex: idx,
                         isCorrect: (idx === q.answer)
                     });
                     
-                    document.getElementById('status-msg').innerText = "وەڵامەکەت هەڵبژێردرا (دەتوانیت تا تەواوبوونی کات بیگۆڕیت)";
+                    document.getElementById('status-msg').innerText = "وەڵامەکەت تۆمارکرا (دەتوانیت تا کۆتایی کات بیگۆڕیت)";
                 };
 
                 let tagDiv = document.createElement('div');
@@ -163,7 +392,6 @@
                 container.appendChild(box);
             });
 
-            // سیستەمی ٦٠ چرکە
             if(timerInterval) clearInterval(timerInterval);
             let timeLeft = 60;
             document.getElementById('timer').innerText = "کاتی ماوە: " + timeLeft + " چرکە";
@@ -187,24 +415,20 @@
             
             const q = questions[activeQIndex];
 
-            // خوێندنەوەی گشت وەڵامەکانی بەشداربووان بۆ نیشاندانی لەسەر هەموو مۆبایلەکان
             db.ref('submissions').once('value', (snapshot) => {
                 let submissions = snapshot.val() || {};
                 
-                // ڕێکخستنی ناوەکان لەپاڵ هەڵبژاردنەکاندا
                 for(let i = 0; i < q.options.length; i++) {
                     let btn = document.getElementById('opt-btn-' + i);
                     let tag = document.getElementById('voter-tag-' + i);
                     tag.innerHTML = "";
 
-                    // ڕەنگکردنی ڕاست و هەڵە
                     if(i === q.answer) {
-                        btn.classList.add('correct'); // سەوز بۆ وەڵامی ڕاست
+                        btn.classList.add('correct');
                     } else if(selectedOptionIndex === i) {
-                        btn.classList.add('wrong');   // سوور ئەگەر بەشداربوو ئەمەی هەڵبژاردبێت و هەڵە بێت
+                        btn.classList.add('wrong');
                     }
 
-                    // کۆکردنەوەی ناوی ئەو زانکۆیانەی ئەم بژاردەیەیان هەڵبژاردووە
                     let voters = [];
                     for(let key in submissions) {
                         if(submissions[key].answerIndex === i) {
